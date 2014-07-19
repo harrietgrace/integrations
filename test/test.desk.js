@@ -53,7 +53,7 @@ describe('Desk', function () {
 
   describe('.identify()', function () {
     var identify = helpers.identify()
-      , query   = { email : identify.email() };
+      , query   = { email : identify.email()};
 
     it('should be able to identify a new user', function (done) {
       desk.identify(identify, settings, function(err, res){
@@ -63,8 +63,13 @@ describe('Desk', function () {
       });
     });
 
-    it('should be able to identify an existing user', function (done) {
-      var identify = helpers.identify({ email: 'support@desk.com' });
+    it('should be able to identify an existing Segment and Desk user', function (done) {
+      var identify = helpers.identify({ email: 'calvin@segment.io', userId : 'mkw4jfn' });
+      desk.identify(identify, settings, done);
+    });
+
+    it('should be able to identify an existing Desk user', function (done) {
+      var identify = helpers.identify({ email: 'calvin@segment.io', userId : '' });
       desk.identify(identify, settings, done);
     });
   });
