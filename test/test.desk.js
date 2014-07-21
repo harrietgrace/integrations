@@ -11,6 +11,11 @@ var desk = new integrations['Desk']()
 
 describe('Desk', function () {
 
+    beforeEach(function() {
+      desk = new integrations['Desk']();
+      settings = auth['Desk'];
+    })
+
   describe('.enabled()', function () {
     it('should only be enabled for all messages', function () {
       desk.enabled(new facade.Track({ channel : 'server' })).should.be.ok;
@@ -21,11 +26,6 @@ describe('Desk', function () {
 
 
   describe('.validate()', function () {
-
-    beforeEach(function() {
-      desk = new integrations['Desk']();
-      settings = auth['Desk'];
-    })
 
     it('should require an apiKey', function () {
       var identify = helpers.identify();
@@ -39,23 +39,17 @@ describe('Desk', function () {
       desk.validate(identify, { apiKey : 'xxx', siteName : '' }).should.be.an.instanceOf(Error);
     });
 
-    it('should validate with the required settings and email address', function () {
+    it('should validate with apikey and sitename', function () {
       should.not.exist(desk.validate({}, { apiKey : 'xxx', siteName : 'us1' }));
     });
   });
-
-  describe('.track()', function () {
-    it('should do nothing on track', function (done) {
-      desk.track(helpers.track(), settings, done);
-    });
-  });
-
 
   describe('.identify()', function () {
     var identify = helpers.identify()
       , query   = { email : identify.email()};
 
     it('should be able to identify a new user', function (done) {
+      //debugger;
       desk.identify(identify, settings, function(err, res){
         if (err) return done(err);
         res.body.item.emails[0].value.should.eql(identify.email());
@@ -78,8 +72,9 @@ describe('Desk', function () {
 
     it('should error on an invalid key', function (done) {
       var apiKey = { api_key : 'segment' }
-        , email    = 'calvin@segment.io';
-      desk._getUser({ email : email }, apiKey, function (err, user) {
+        , email    = 'calvin@segment.io'
+        , url = "https://harriet.desk.com/api/v2";
+      desk._getUser(url, { email : email }, apiKey, function (err, user) {
         should.exist(err);
         err.status.should.eql(401);
         should.not.exist(user);
@@ -88,9 +83,10 @@ describe('Desk', function () {
     });
 
     it('should not return a non-existent user', function (done) {
-      var email = 'non-existent@segment.io';
-      var apiKey = {"api_key" : settings.apiKey};
-      desk._getUser({ email : email }, apiKey, function (err, user) {
+      var apiKey = {api_key : settings.apiKey}
+        , email = 'non-existent@segment.io'
+        , url = "https://harriet.desk.com/api/v2";
+      desk._getUser(url, { email : email }, apiKey, function (err, user) {
         should.not.exist(err);
         should.not.exist(user);
         done();
@@ -98,10 +94,10 @@ describe('Desk', function () {
     });
 
     it('should return an existing user', function (done) {
-      var identify = helpers.identify({ email: 'calvin@segment.io' })
-      var email = identify.email();
-      var apiKey = {"api_key" : settings.apiKey};
-      desk._getUser({ email : email }, apiKey, function (err, user) {
+      var apiKey = {api_key : settings.apiKey}
+        , email = 'calvin@segment.io'
+        , url = "https://harriet.desk.com/api/v2";
+      desk._getUser(url, { email : email }, apiKey, function (err, user) {
         should.not.exist(err);
         should.exist(user);
         user.firstName.should.eql(identify.firstName());
@@ -111,6 +107,11 @@ describe('Desk', function () {
     });
   });
 
+  describe('.track()', function () {
+    it('should do nothing on track', function (done) {
+      desk.track(helpers.track(), settings, done);
+    });
+  });
 
   describe('.alias()', function () {
     it('should do nothing on alias', function (done) {
