@@ -59,6 +59,7 @@ describe('Desk', function () {
 
     it('should be able to identify an existing Segment and Desk user', function (done) {
       var identify = helpers.identify({ email: 'calvin@segment.io', userId : 'mkw4jfn' });
+      //debugger;
       desk.identify(identify, settings, done);
     });
 
@@ -71,10 +72,10 @@ describe('Desk', function () {
   describe('._getUser()', function () {
 
     it('should error on an invalid key', function (done) {
-      var apiKey = { api_key : 'segment' }
-        , email    = 'calvin@segment.io'
-        , url = "https://harriet.desk.com/api/v2";
-      desk._getUser(url, { email : email }, apiKey, function (err, user) {
+      var settings = { api_key : 'segment' };
+      var email    = 'calvin@segment.io';
+      var url = "https://harriet.desk.com/api/v2";
+      desk._getUser(url, { email : email }, settings, function (err, user) {
         should.exist(err);
         err.status.should.eql(401);
         should.not.exist(user);
@@ -83,10 +84,9 @@ describe('Desk', function () {
     });
 
     it('should not return a non-existent user', function (done) {
-      var apiKey = {api_key : settings.apiKey}
-        , email = 'non-existent@segment.io'
-        , url = "https://harriet.desk.com/api/v2";
-      desk._getUser(url, { email : email }, apiKey, function (err, user) {
+      var email = 'non-existent@segment.io';
+      var url = "https://harriet.desk.com/api/v2";
+      desk._getUser(url, { email : email }, settings, function (err, user) {
         should.not.exist(err);
         should.not.exist(user);
         done();
@@ -94,10 +94,9 @@ describe('Desk', function () {
     });
 
     it('should return an existing user', function (done) {
-      var apiKey = {api_key : settings.apiKey}
-        , email = 'calvin@segment.io'
-        , url = "https://harriet.desk.com/api/v2";
-      desk._getUser(url, { email : email }, apiKey, function (err, user) {
+      var email = 'calvin@segment.io';
+      var url = "https://harriet.desk.com/api/v2";
+      desk._getUser(url, { email : email }, settings, function (err, user) {
         should.not.exist(err);
         should.exist(user);
         user.firstName.should.eql(identify.firstName());
