@@ -51,6 +51,7 @@ describe('Desk', function () {
   });
 
   describe('.identify()', function () {
+
     var identify = helpers.identify()
       , query   = { email : identify.email()};
 
@@ -74,11 +75,12 @@ describe('Desk', function () {
   });
 
   describe('._getUser()', function () {
+
     var identify = helpers.identify();
+    var url = "https://harriet.desk.com/api/v2";
 
     it('should error on invalid auth details', function (done) {
       var email    = 'calvin@segment.io';
-      var url = "https://harriet.desk.com/api/v2";
       var settings = { email : email, password : 'xxx', sitename : 'blah' };
       desk._getUser(url, { email : email }, settings, function (err, user) {
         should.exist(err);
@@ -90,7 +92,6 @@ describe('Desk', function () {
 
     it('should not return a non-existent user', function (done) {
       var email = 'non-existent@segment.io';
-      var url = "https://harriet.desk.com/api/v2";
       desk._getUser(url, { email : email }, settings, function (err, user) {
         should.not.exist(err);
         should.not.exist(user);
@@ -100,7 +101,6 @@ describe('Desk', function () {
 
     it('should return an existing user', function (done) {
       var email = 'calvin@segment.io';
-      var url = "https://harriet.desk.com/api/v2";
       desk._getUser(url, { email : email }, settings, function (err, user) {
         should.not.exist(err);
         should.exist(user);
@@ -116,9 +116,36 @@ describe('Desk', function () {
     var identify = helpers.identify();
     var url = "https://harriet.desk.com/api/v2";
 
-    it('should create successfully with a new user', function (done) {
+    it('should create a new user', function (done) {
       desk._createUser(url, identify, settings, done);
       desk._getUser(url, { email : identify.email() }, settings, function (err, user) {
+        should.not.exist(err);
+        should.exist(user);
+        user.first_name.should.eql(identify.firstName());
+        user.last_name.should.eql(identify.lastName());
+        done();
+      });
+    });
+  });
+
+  describe('._updateUser()', function() {
+
+    var identify = helpers.identify();
+    var url = "https://harriet.desk.com/api/v2";
+
+    it('should not update an non-existent user', function (done) {
+      desk._updateUser(url, 2374489341, identify, settings, done);
+      desk._getUser(url, { external_id : identify.uid() }, settings, function (err, user) {
+        should.not.exist(err);
+        should.not.exist(user);
+        done();
+      });
+    });
+
+    it('should update an existing user', function (done) {
+      var identify = helpers.identify({"email":"calvin@segment.io", "external_id" : "mkw4jfn"});
+      desk._updateUser(url, 236562637, identify, settings, done);
+      desk._getUser(url, { external_id : 'mkw4jfn' }, settings, function (err, user) {
         should.not.exist(err);
         should.exist(user);
         user.first_name.should.eql(identify.firstName());
