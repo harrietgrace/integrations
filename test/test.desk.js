@@ -27,20 +27,26 @@ describe('Desk', function () {
 
   describe('.validate()', function () {
 
-    it('should require an apiKey', function () {
+    it('should require an email', function () {
       var identify = helpers.identify();
-      desk.validate(identify, { siteName : 'us1' }).should.be.an.instanceOf(Error);
-      desk.validate(identify, { apiKey : '', siteName : 'us1' }).should.be.an.instanceOf(Error);
+      desk.validate(identify, { password : 'xxx', siteName : 'us1' }).should.be.an.instanceOf(Error);
+      desk.validate(identify, { email : '', password : 'xxx', siteName : 'us1' }).should.be.an.instanceOf(Error);
+    });
+
+    it('should require an password', function () {
+      var identify = helpers.identify();
+      desk.validate(identify, { email : 'xxx', siteName : 'us1' }).should.be.an.instanceOf(Error);
+      desk.validate(identify, { email : 'xxx', password : '', siteName : 'us1' }).should.be.an.instanceOf(Error);
     });
 
     it('should require a siteName', function () {
       var identify = helpers.identify();
-      desk.validate(identify, { apiKey : 'xxx' }).should.be.an.instanceOf(Error);
-      desk.validate(identify, { apiKey : 'xxx', siteName : '' }).should.be.an.instanceOf(Error);
+      desk.validate(identify, { email : 'xxx', password : 'xxx' }).should.be.an.instanceOf(Error);
+      desk.validate(identify, { email : 'xxx', password : 'xxx', siteName : '' }).should.be.an.instanceOf(Error);
     });
 
-    it('should validate with apikey and sitename', function () {
-      should.not.exist(desk.validate({}, { apiKey : 'xxx', siteName : 'us1' }));
+    it('should validate with an email, password, and sitename', function () {
+      should.not.exist(desk.validate({}, { email : 'xxx', password : 'xxx', siteName : 'us1' }));
     });
   });
 
@@ -49,17 +55,15 @@ describe('Desk', function () {
       , query   = { email : identify.email()};
 
     it('should be able to identify a new user', function (done) {
-      //debugger;
       desk.identify(identify, settings, function(err, res){
         if (err) return done(err);
-        res.body.item.emails[0].value.should.eql(identify.email());
+        res.body.emails[0].value.should.eql(identify.email());
         done();
       });
     });
 
     it('should be able to identify an existing Segment and Desk user', function (done) {
       var identify = helpers.identify({ email: 'calvin@segment.io', userId : 'mkw4jfn' });
-      //debugger;
       desk.identify(identify, settings, done);
     });
 
@@ -70,11 +74,12 @@ describe('Desk', function () {
   });
 
   describe('._getUser()', function () {
+    var identify = helpers.identify();
 
-    it('should error on an invalid key', function (done) {
-      var settings = { api_key : 'segment' };
+    it('should error on invalid auth details', function (done) {
       var email    = 'calvin@segment.io';
       var url = "https://harriet.desk.com/api/v2";
+      var settings = { email : email, password : 'xxx', sitename : 'blah' };
       desk._getUser(url, { email : email }, settings, function (err, user) {
         should.exist(err);
         err.status.should.eql(401);
@@ -99,8 +104,25 @@ describe('Desk', function () {
       desk._getUser(url, { email : email }, settings, function (err, user) {
         should.not.exist(err);
         should.exist(user);
-        user.firstName.should.eql(identify.firstName());
-        user.lastName.should.eql(identify.lastName());
+        user.first_name.should.eql(identify.firstName());
+        user.last_name.should.eql(identify.lastName());
+        done();
+      });
+    });
+  });
+
+  describe('._createUser()', function() {
+
+    var identify = helpers.identify();
+    var url = "https://harriet.desk.com/api/v2";
+
+    it('should create successfully with a new user', function (done) {
+      desk._createUser(url, identify, settings, done);
+      desk._getUser(url, { email : identify.email() }, settings, function (err, user) {
+        should.not.exist(err);
+        should.exist(user);
+        user.first_name.should.eql(identify.firstName());
+        user.last_name.should.eql(identify.lastName());
         done();
       });
     });
