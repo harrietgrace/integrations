@@ -16,15 +16,6 @@ describe('Desk', function () {
       settings = auth['Desk'];
     })
 
-  describe('.enabled()', function () {
-    it('should only be enabled for all messages', function () {
-      desk.enabled(new facade.Track({ channel : 'server' })).should.be.ok;
-      desk.enabled(new facade.Track({ channel : 'client' })).should.not.be.ok;
-      desk.enabled(new facade.Track({})).should.not.be.ok;
-    });
-  });
-
-
   describe('.validate()', function () {
 
     it('should require an email', function () {
@@ -68,7 +59,7 @@ describe('Desk', function () {
     it('should be able to identify an existing Segment and Desk user', function (done) {
       var identify = helpers.identify({ email: 'calvin@segment.io', userId : '2i4jtg1' });
       desk.identify(identify, settings, done);
-    });https://github.com/harrietgrace/integrations/pull/1
+    });
 
     it('should be able to identify an existing Desk user', function (done) {
       var identify = helpers.identify({ email: 'calvin@segment.io', userId : '' });
@@ -81,12 +72,11 @@ describe('Desk', function () {
     this.timeout(10000);
     
     var identify = helpers.identify();
-    var url = "https://harriet.desk.com/api/v2";
 
     it('should error on invalid auth details', function (done) {
       var email    = 'calvin@segment.io';
-      var settings = { email : email, password : 'xxx', sitename : 'blah' };
-      desk._getUser(url, { email : email }, settings, function (err, user) {
+      var settings = { email : email, password : 'xxx', siteName : 'blah' };
+      desk._getUser({ email : email }, settings, function (err, user) {
         should.exist(err);
         err.status.should.eql(401);
         should.not.exist(user);
@@ -96,7 +86,7 @@ describe('Desk', function () {
 
     it('should not return a non-existent user', function (done) {
       var email = 'non-existent@segment.io';
-      desk._getUser(url, { email : email }, settings, function (err, user) {
+      desk._getUser({ email : email }, settings, function (err, user) {
         should.not.exist(err);
         should.not.exist(user);
         done();
@@ -105,7 +95,7 @@ describe('Desk', function () {
 
     it('should return an existing user', function (done) {
       var email = 'calvin@segment.io';
-      desk._getUser(url, { email : email }, settings, function (err, user) {
+      desk._getUser({ email : email }, settings, function (err, user) {
         should.not.exist(err);
         should.exist(user);
         user.first_name.should.eql(identify.firstName());
@@ -120,11 +110,10 @@ describe('Desk', function () {
     this.timeout(10000);
     
     var identify = helpers.identify();
-    var url = "https://harriet.desk.com/api/v2";
 
     it('should create a new user', function (done) {
-      desk._createUser(url, identify, settings, done);
-      desk._getUser(url, { email : identify.email() }, settings, function (err, user) {
+      desk._createUser(identify, settings, done);
+      desk._getUser({ email : identify.email() }, settings, function (err, user) {
         should.not.exist(err);
         should.exist(user);
         user.first_name.should.eql(identify.firstName());
@@ -139,13 +128,12 @@ describe('Desk', function () {
     this.timeout(10000);
     
     var identify = helpers.identify();
-    var url = "https://harriet.desk.com/api/v2";
     var id = identify.uid();
 
     it('should update an existing user', function (done) {
       var identify = helpers.identify();
-      desk._updateUser(url, 237469071, identify, settings, done);
-      desk._getUser(url, {external_id : id}, settings, function (err, user) {
+      desk._updateUser(237469071, identify, settings, done);
+      desk._getUser({external_id : id}, settings, function (err, user) {
         should.not.exist(err);
         should.exist(user);
         user.first_name.should.eql(identify.firstName());
