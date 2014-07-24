@@ -64,7 +64,7 @@ describe('Desk', function () {
     });
 
     it('should be able to identify an existing Segment and Desk user', function (done) {
-      var identify = helpers.identify({ email: 'calvin@segment.io', userId : 'mkw4jfn' });
+      var identify = helpers.identify({ email: 'calvin@segment.io', userId : '2i4jtg1' });
       desk.identify(identify, settings, done);
     });
 
@@ -132,20 +132,12 @@ describe('Desk', function () {
 
     var identify = helpers.identify();
     var url = "https://harriet.desk.com/api/v2";
-
-    it('should not update an non-existent user', function (done) {
-      desk._updateUser(url, 2374489341, identify, settings, done);
-      desk._getUser(url, { external_id : identify.uid() }, settings, function (err, user) {
-        should.not.exist(err);
-        should.not.exist(user);
-        done();
-      });
-    });
+    var id = identify.uid();
 
     it('should update an existing user', function (done) {
-      var identify = helpers.identify({"email":"calvin@segment.io", "external_id" : "mkw4jfn"});
-      desk._updateUser(url, 236562637, identify, settings, done);
-      desk._getUser(url, { external_id : 'mkw4jfn' }, settings, function (err, user) {
+      var identify = helpers.identify();
+      desk._updateUser(url, 237469071, identify, settings, done);
+      desk._getUser(url, {external_id : id}, settings, function (err, user) {
         should.not.exist(err);
         should.exist(user);
         user.first_name.should.eql(identify.firstName());
