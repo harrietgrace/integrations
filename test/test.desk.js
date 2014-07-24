@@ -51,7 +51,9 @@ describe('Desk', function () {
   });
 
   describe('.identify()', function () {
-
+    
+    this.timeout(10000);
+    
     var identify = helpers.identify()
       , query   = { email : identify.email()};
 
@@ -66,7 +68,7 @@ describe('Desk', function () {
     it('should be able to identify an existing Segment and Desk user', function (done) {
       var identify = helpers.identify({ email: 'calvin@segment.io', userId : '2i4jtg1' });
       desk.identify(identify, settings, done);
-    });
+    });https://github.com/harrietgrace/integrations/pull/1
 
     it('should be able to identify an existing Desk user', function (done) {
       var identify = helpers.identify({ email: 'calvin@segment.io', userId : '' });
@@ -75,7 +77,9 @@ describe('Desk', function () {
   });
 
   describe('._getUser()', function () {
-
+    
+    this.timeout(10000);
+    
     var identify = helpers.identify();
     var url = "https://harriet.desk.com/api/v2";
 
@@ -112,7 +116,9 @@ describe('Desk', function () {
   });
 
   describe('._createUser()', function() {
-
+    
+    this.timeout(10000);
+    
     var identify = helpers.identify();
     var url = "https://harriet.desk.com/api/v2";
 
@@ -129,7 +135,9 @@ describe('Desk', function () {
   });
 
   describe('._updateUser()', function() {
-
+    
+    this.timeout(10000);
+    
     var identify = helpers.identify();
     var url = "https://harriet.desk.com/api/v2";
     var id = identify.uid();
